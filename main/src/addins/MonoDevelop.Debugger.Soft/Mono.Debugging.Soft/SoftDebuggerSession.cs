@@ -440,7 +440,8 @@ namespace Mono.Debugging.Soft
 		protected override void OnDetach ()
 		{
 			EndLaunch ();
-			vm = null;
+			vm.Disconnect ();
+			vm.Dispose ();
 		}
 
 		protected override void OnExit ()
