@@ -416,14 +416,7 @@ namespace Mono.Debugging.Soft
 
 		protected override void OnAttachToProcess (long processId)
 		{
-			// int port = 4242;
-			// FIXME: Come up with a scheme for this.
-			long port = processId;
-			
-			// Don't attempt to run on a privileged port
-			if (port <= 1024)
-				port += 1024;
-				
+			long port = 56000 + (processId % 1000);
 			ConnectionStarted (VirtualMachineManager.Connect (new IPEndPoint (IPAddress.Loopback, (int)port)));
 		}
 
