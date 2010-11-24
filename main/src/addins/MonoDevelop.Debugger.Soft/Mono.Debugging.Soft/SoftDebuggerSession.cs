@@ -416,8 +416,9 @@ namespace Mono.Debugging.Soft
 
 		protected override void OnAttachToProcess (long processId)
 		{
+			// Port selection needs to be synchronized with debugger-agent.c
 			long port = 56000 + (processId % 1000);
-			ConnectionStarted (VirtualMachineManager.Connect (new IPEndPoint (IPAddress.Loopback, (int)port)));
+			StartConnecting (new RemoteSoftDebuggerStartInfo (null, IPAddress.Loopback, (int)port), 3, 1000);
 		}
 
 		protected override void OnContinue ()
