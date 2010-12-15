@@ -93,12 +93,14 @@ namespace MonoDevelop.Debugger.Soft
 		
 		public ProcessInfo[] GetAttachableProcesses ()
 		{
-			// return new ProcessInfo[]{ new ProcessInfo (1, "mono"), new ProcessInfo (2, "nothing") };
 			var infos = new List<ProcessInfo> ();
+			string baseProcessName;
+			
 			foreach (var process in Process.GetProcesses ()) {
 				try {
-					if (process.ProcessName.StartsWith ("mono", StringComparison.OrdinalIgnoreCase))
-						infos.Add (new ProcessInfo (process.Id, string.Format ("{0} ({1})", process.MainWindowTitle, process.ProcessName)));
+					baseProcessName = Path.GetFileName (process.ProcessName);
+					if (baseProcessName.Equals ("mono", StringComparison.OrdinalIgnoreCase))
+						infos.Add (new ProcessInfo (process.Id, string.Format ("{0} ({1})", process.MainWindowTitle, baseProcessName)));
 				} catch {
 					// This can fail, but it doesn't matter
 				}
