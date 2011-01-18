@@ -721,8 +721,11 @@ namespace Mono.Debugging.Soft
                 {
                     SoftEvaluationContext cx = (SoftEvaluationContext)ctx;
                     MethodMirror method = OverloadResolve(cx, "GetInstanceID", objekt.Type, new TypeMirror[] { }, true, false, false);
-                    Value v = cx.RuntimeInvoke(method, val, new Value[] { });
-                    rv = (v is PrimitiveValue && ((int)(((PrimitiveValue)v).Value)) == 0);
+                    if (method != null)
+                    {
+                        Value v = cx.RuntimeInvoke(method, val, new Value[] { });
+                        rv = (v is PrimitiveValue && ((int)(((PrimitiveValue)v).Value)) == 0);
+                    }
                 }
             }
             return rv;
