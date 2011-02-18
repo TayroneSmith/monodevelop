@@ -88,6 +88,12 @@ namespace MonoDevelop.Ide.Gui.Pads
 		protected virtual void OnSelectionChanged (object sender, EventArgs args)
 		{
 			// nothing
+			if (null != treeView && PropertyService.IsMac) {
+				ITreeNavigator[] selected = treeView.GetSelectedNodes ();
+				if (null != selected && 1 == selected.Length && null != selected[0]) {
+					selected[0].Expanded = true;
+				}
+			}
 		}
 		
 		public TreeViewPad (NodeBuilder[] builders, TreePadOption[] options)
