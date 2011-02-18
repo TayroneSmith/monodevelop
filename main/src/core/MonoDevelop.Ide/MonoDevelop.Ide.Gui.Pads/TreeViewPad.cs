@@ -87,7 +87,7 @@ namespace MonoDevelop.Ide.Gui.Pads
 		
 		protected virtual void OnSelectionChanged (object sender, EventArgs args)
 		{
-			// nothing
+			// HACKaround for treeview focus problems on OSX
 			if (null != treeView && PropertyService.IsMac) {
 				ITreeNavigator[] selected = treeView.GetSelectedNodes ();
 				if (null != selected && 1 == selected.Length && null != selected[0]) {
