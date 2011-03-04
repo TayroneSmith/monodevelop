@@ -46,6 +46,7 @@ namespace MonoDevelop.Autotools
 	{
 		bool integrationEnabled;
 		string relativeMakefileName;
+		string relativeMakeCommand;
 		string buildTargetName;
 		string cleanTargetName;
 		string executeTargetName;
@@ -60,6 +61,7 @@ namespace MonoDevelop.Autotools
 
 		public MakefileData ()
 		{
+			relativeMakeCommand = "make";
 			relativeMakefileName = String.Empty;
 			buildTargetName = "all";
 			cleanTargetName = "clean";
@@ -143,6 +145,29 @@ namespace MonoDevelop.Autotools
 			get { return IntegrationEnabled && !PropertyService.IsWindows; }
 		}
 		
+		[ItemProperty (DefaultValue = "make")]
+		public string RelativeMakeCommand {
+			get {
+				if (ownerProject == null || !relativeMakeCommand.Contains (Path.DirectorySeparatorChar.ToString ()))
+					return relativeMakeCommand;
+				return ownerProject.GetRelativeChildPath (relativeMakeCommand);
+			}
+			set {
+				if (String.Compare (relativeMakeCommand, value) == 0)
+					return;
+
+				relativeMakeCommand = value;
+			}
+		}
+
+		public string AbsoluteMakeCommand {
+			get {
+				if (ownerProject == null || !relativeMakeCommand.Contains (Path.DirectorySeparatorChar.ToString ()))
+					return relativeMakeCommand;
+				return ownerProject.GetAbsoluteChildPath (relativeMakeCommand);
+			}
+		}
+
 		[ItemProperty (DefaultValue = "")]
 		public string RelativeMakefileName {
 			get {
@@ -479,6 +504,7 @@ namespace MonoDevelop.Autotools
 			MakefileData data = new MakefileData ();
 			data.OwnerProject = this.OwnerProject;
 			data.IntegrationEnabled = this.IntegrationEnabled;
+			data.RelativeMakeCommand = this.RelativeMakeCommand;
 			data.RelativeMakefileName = this.RelativeMakefileName;
 			data.BuildTargetName = this.BuildTargetName;
 			data.CleanTargetName = this.CleanTargetName;

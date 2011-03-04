@@ -18,7 +18,7 @@ namespace MonoDevelop.Autotools
 		bool isDotNetProject;
 		bool loading = true;
 		
-		public MakefileOptionPanelWidget (Project project, MakefileData tmpData)
+		public MakefileOptionPanelWidget (Project project,MakefileData tmpData)
 			: this ()
 		{
 			this.data = tmpData;
@@ -57,6 +57,7 @@ namespace MonoDevelop.Autotools
 
 			//FIXME: ResetAll  : use for new data, use for new makefile
 			//Load values
+			this.MakeCommand.Text = data.RelativeMakeCommand;
 			this.fileEntryMakefilePath.BrowserTitle = GettextCatalog.GetString ("Makefile");
 		
 			this.cbKeepFilesSync.Active = data.BuildFilesVar.Sync;
@@ -106,11 +107,11 @@ namespace MonoDevelop.Autotools
 
 			this.fileEntryMakefilePath.FocusChildSet += new FocusChildSetHandler (OnMakefilePathFocusChildSet);
 			
-			((Gtk.Container) comboAssemblyName.Parent).Remove (comboAssemblyName);
-			((Gtk.Container) lblAssemblyNameVar.Parent).Remove (lblAssemblyNameVar);
+			((Gtk.Container)comboAssemblyName.Parent).Remove (comboAssemblyName);
+			((Gtk.Container)lblAssemblyNameVar.Parent).Remove (lblAssemblyNameVar);
 
-			((Gtk.Container) comboOutputDir.Parent).Remove (comboOutputDir);
-			((Gtk.Container) lblOutputDirVar.Parent).Remove (lblOutputDirVar);
+			((Gtk.Container)comboOutputDir.Parent).Remove (comboOutputDir);
+			((Gtk.Container)lblOutputDirVar.Parent).Remove (lblOutputDirVar);
 			
 			loading = false;
 		}
@@ -144,6 +145,7 @@ namespace MonoDevelop.Autotools
 		public bool ValidateChanges (Project project)
 		{
 			data.IntegrationEnabled = this.cbEnableMakefileIntegration.Active;
+			data.RelativeMakeCommand = this.MakeCommand.Text;
 			data.RelativeMakefileName = this.fileEntryMakefilePath.Path;
 			
 			data.BuildFilesVar.Sync = this.cbKeepFilesSync.Active;
@@ -367,6 +369,7 @@ namespace MonoDevelop.Autotools
 				bool tryAgain = false;
 				do {
 					bool first_load = String.IsNullOrEmpty (data.RelativeMakefileName);
+					this.MakeCommand.Text = data.RelativeMakeCommand;
 					if (TryLoadMakefile (false)) {
 						if (first_load)
 							GuessVariables ();
