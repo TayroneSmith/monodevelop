@@ -632,12 +632,13 @@ namespace MonoDevelop.Autotools
 			this.cbAutotoolsProject.Sensitive = active;
 			HandleCbAutotoolsProjectClicked (cbAutotoolsProject);
 
-			this.comboMessageType.Sensitive = active;
-			label7.Sensitive = active;
-			lblErrorRegex.Sensitive = active;
-			lblMessageType.Sensitive = active;
-			lblWarningRegex.Sensitive = active;
-			HandleComboMessageTypeChanged (comboMessageType);
+//			// Leave these enabled when there's no good Makefile
+//			this.comboMessageType.Sensitive = active;
+//			label7.Sensitive = active;
+//			lblErrorRegex.Sensitive = active;
+//			lblMessageType.Sensitive = active;
+//			lblWarningRegex.Sensitive = active;
+//			HandleComboMessageTypeChanged (comboMessageType);
 		}
 
 		protected virtual void OnCbFileSyncClicked(object sender, System.EventArgs e)
