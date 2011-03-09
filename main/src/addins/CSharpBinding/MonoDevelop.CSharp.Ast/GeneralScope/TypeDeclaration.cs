@@ -37,7 +37,7 @@ namespace MonoDevelop.CSharp.Ast
 	{
 		public readonly static Role<CSharpTokenNode> ColonRole = Roles.Colon;
 		public readonly static Role<AstType> BaseTypeRole = new Role<AstType>("BaseType", AstType.Null);
-		public readonly static Role<AttributedNode> MemberRole = new Role<AttributedNode>("Member");
+		public readonly static Role<AttributedNode> MemberRole = new Role<AttributedNode>("Member", (AttributedNode)AstNode.Null);
 		
 		public override NodeType NodeType {
 			get {

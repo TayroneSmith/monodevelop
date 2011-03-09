@@ -522,7 +522,7 @@ namespace MonoDevelop.CSharp.Formatting
 
 				DomLocation location = new DomLocation (textEditorData.Caret.Location.Line + (lastCharInserted == '\n' ? -1 : 0), textEditorData.Caret.Location.Column);
 				//				CSharpFormatter.Format (textEditorData, dom, Document.CompilationUnit, location);
-				OnTheFlyFormatter.Format (Document, dom, location, lastCharInserted == '\n');
+				OnTheFlyFormatter.Format (Document, dom, location, lastCharInserted == '\n', false);
 
 				//		textEditorData.Document.TextReplaced += TextCut;
 				textEditorData.Paste += TextEditorDataPaste;

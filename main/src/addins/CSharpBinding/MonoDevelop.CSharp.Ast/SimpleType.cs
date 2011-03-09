@@ -75,7 +75,7 @@ namespace MonoDevelop.CSharp.Ast
 			StringBuilder b = new StringBuilder(this.Identifier);
 			if (this.TypeArguments.Any()) {
 				b.Append('<');
-				b.Append(string.Join(", ", this.TypeArguments));
+				b.Append(string.Join(", ", this.TypeArguments.Select (a=>a.ToString()).ToArray()));
 				b.Append('>');
 			}
 			return b.ToString();

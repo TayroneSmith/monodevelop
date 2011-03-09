@@ -35,7 +35,7 @@ namespace MonoDevelop.CSharp.Ast
 	/// </summary>
 	public class AttributeSection : AstNode
 	{
-		public static readonly Role<Attribute> AttributeRole = new Role<Attribute>("Attribute");
+		public static readonly Role<Attribute> AttributeRole = new Role<Attribute>("Attribute", (Attribute)AstNode.Null);
 		public static readonly Role<CSharpTokenNode> TargetRole = new Role<CSharpTokenNode>("Target", CSharpTokenNode.Null);
 		
 		public override NodeType NodeType {

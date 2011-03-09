@@ -30,7 +30,7 @@ namespace MonoDevelop.CSharp.Ast
 {
 	public class QueryExpression : Expression
 	{
-		public static readonly Role<QueryClause> ClauseRole = new Role<QueryClause>("Clause");
+		public static readonly Role<QueryClause> ClauseRole = new Role<QueryClause>("Clause", (QueryClause)AstNode.Null);
 		
 		#region Null
 		public new static readonly QueryExpression Null = new NullQueryExpression ();
@@ -276,7 +276,7 @@ namespace MonoDevelop.CSharp.Ast
 	
 	public class QueryOrderClause : QueryClause
 	{
-		public static readonly Role<QueryOrdering> OrderingRole = new Role<QueryOrdering>("Ordering");
+		public static readonly Role<QueryOrdering> OrderingRole = new Role<QueryOrdering>("Ordering", (QueryOrdering)AstNode.Null);
 		
 		public CSharpTokenNode Keyword {
 			get { return GetChildByRole (Roles.Keyword); }

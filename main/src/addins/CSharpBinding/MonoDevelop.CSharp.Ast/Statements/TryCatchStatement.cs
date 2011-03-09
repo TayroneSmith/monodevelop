@@ -36,7 +36,7 @@ namespace MonoDevelop.CSharp.Ast
 	{
 		public static readonly Role<CSharpTokenNode> TryKeywordRole = new Role<CSharpTokenNode>("TryKeyword", CSharpTokenNode.Null);
 		public static readonly Role<BlockStatement> TryBlockRole = new Role<BlockStatement>("TryBlock", BlockStatement.Null);
-		public static readonly Role<CatchClause> CatchClauseRole = new Role<CatchClause>("CatchClause");
+		public static readonly Role<CatchClause> CatchClauseRole = new Role<CatchClause>("CatchClause", (CatchClause)AstNode.Null);
 		public static readonly Role<CSharpTokenNode> FinallyKeywordRole = new Role<CSharpTokenNode>("FinallyKeyword", CSharpTokenNode.Null);
 		public static readonly Role<BlockStatement> FinallyBlockRole = new Role<BlockStatement>("FinallyBlock", BlockStatement.Null);
 		

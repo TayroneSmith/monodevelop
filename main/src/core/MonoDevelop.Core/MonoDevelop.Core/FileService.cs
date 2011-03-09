@@ -394,7 +394,7 @@ namespace MonoDevelop.Core
 		/// </summary>
 		public static void RemoveDirectoryIfEmpty (string directory)
 		{
-			if (Directory.Exists (directory) && !Directory.EnumerateFiles (directory).Any ())
+			if (Directory.Exists (directory) && !Directory.GetFiles (directory).Any ())
 				Directory.Delete (directory);
 		}
 		

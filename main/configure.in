@@ -82,7 +82,7 @@ if test "x$MSGMERGE" = "xno"; then
         AC_MSG_ERROR([You need to install msgmerge from intltool])
 fi
 
-MONO_REQUIRED_VERSION=2.8
+MONO_REQUIRED_VERSION=2.6
 PKG_CHECK_MODULES(UNMANAGED_DEPENDENCIES_MONO,mono >= $MONO_REQUIRED_VERSION, has_mono=true, has_mono=false)
 
 if test "x$has_mono" = "xfalse"; then
@@ -98,7 +98,7 @@ if test "x$has_mono" = "xtrue"; then
 	LIB_SUFFIX=.dylib
     else
 	AC_PATH_PROG(RUNTIME, mono, no)
-	AC_PATH_PROG(CSC, dmcs, no)
+	AC_PATH_PROG(CSC, dmcs, gmcs)
 	LIB_PREFIX=.so
 	LIB_SUFFIX=
     fi

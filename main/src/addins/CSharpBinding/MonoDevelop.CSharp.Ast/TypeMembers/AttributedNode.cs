@@ -32,8 +32,8 @@ namespace MonoDevelop.CSharp.Ast
 {
 	public abstract class AttributedNode : AstNode
 	{
-		public static readonly Role<AttributeSection> AttributeRole = new Role<AttributeSection>("Attribute");
-		public static readonly Role<CSharpModifierToken> ModifierRole = new Role<CSharpModifierToken>("Modifier");
+		public static readonly Role<AttributeSection> AttributeRole = new Role<AttributeSection>("Attribute", (AttributeSection)AstNode.Null);
+		public static readonly Role<CSharpModifierToken> ModifierRole = new Role<CSharpModifierToken>("Modifier", (CSharpModifierToken)AstNode.Null);
 		
 		public IEnumerable<AttributeSection> Attributes {
 			get { return base.GetChildrenByRole (AttributeRole); }

@@ -33,7 +33,7 @@ namespace MonoDevelop.CSharp.Ast
 	/// </summary>
 	public class ArrayCreateExpression : Expression
 	{
-		public readonly static Role<ArraySpecifier> AdditionalArraySpecifierRole = new Role<ArraySpecifier>("AdditionalArraySpecifier");
+		public readonly static Role<ArraySpecifier> AdditionalArraySpecifierRole = new Role<ArraySpecifier>("AdditionalArraySpecifier", (ArraySpecifier)AstNode.Null);
 		public readonly static Role<ArrayInitializerExpression> InitializerRole = new Role<ArrayInitializerExpression>("Initializer", ArrayInitializerExpression.Null);
 		
 		public AstType Type {

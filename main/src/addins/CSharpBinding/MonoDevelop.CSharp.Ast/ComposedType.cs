@@ -34,7 +34,7 @@ namespace MonoDevelop.CSharp.Ast
 	{
 		public static readonly Role<CSharpTokenNode> NullableRole = new Role<CSharpTokenNode>("Nullable", CSharpTokenNode.Null);
 		public static readonly Role<CSharpTokenNode> PointerRole = new Role<CSharpTokenNode>("Pointer", CSharpTokenNode.Null);
-		public static readonly Role<ArraySpecifier> ArraySpecifierRole = new Role<ArraySpecifier>("ArraySpecifier");
+		public static readonly Role<ArraySpecifier> ArraySpecifierRole = new Role<ArraySpecifier>("ArraySpecifier", (ArraySpecifier)AstNode.Null);
 		
 		public AstType BaseType {
 			get { return GetChildByRole(Roles.Type); }

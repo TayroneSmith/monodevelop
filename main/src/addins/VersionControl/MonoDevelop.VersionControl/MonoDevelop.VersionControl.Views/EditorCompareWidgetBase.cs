@@ -306,7 +306,7 @@ namespace MonoDevelop.VersionControl.Views
 			return new Cairo.Rectangle (point.X - editor.TextViewMargin.XOffset, point.Y, point2.X - point.X, editor.LineHeight);
 		}
 		
-		Dictionary<List<Mono.TextEditor.Utils.Hunk>, Dictionary<Hunk, Tuple<List<Cairo.Rectangle>, List<Cairo.Rectangle>>>> diffCache = new Dictionary<List<Mono.TextEditor.Utils.Hunk>, Dictionary<Hunk, Tuple<List<Cairo.Rectangle>, List<Cairo.Rectangle>>>> ();
+		Dictionary<List<Mono.TextEditor.Utils.Hunk>, Dictionary<Hunk, KeyValuePair<List<Cairo.Rectangle>, List<Cairo.Rectangle>>>> diffCache = new Dictionary<List<Mono.TextEditor.Utils.Hunk>, Dictionary<Hunk, KeyValuePair<List<Cairo.Rectangle>, List<Cairo.Rectangle>>>> ();
 		
 		protected void ClearDiffCache ()
 		{
@@ -341,13 +341,13 @@ namespace MonoDevelop.VersionControl.Views
 			return result;
 		}
 		
-		Tuple<List<Cairo.Rectangle>, List<Cairo.Rectangle>> GetDiffPaths (List<Mono.TextEditor.Utils.Hunk> diff, TextEditor editor, Hunk hunk)
+		KeyValuePair<List<Cairo.Rectangle>, List<Cairo.Rectangle>> GetDiffPaths (List<Mono.TextEditor.Utils.Hunk> diff, TextEditor editor, Hunk hunk)
 		{
 			if (!diffCache.ContainsKey (diff))
-				diffCache[diff] = new Dictionary<Hunk, Tuple<List<Cairo.Rectangle>, List<Cairo.Rectangle>>> ();
+				diffCache[diff] = new Dictionary<Hunk, KeyValuePair<List<Cairo.Rectangle>, List<Cairo.Rectangle>>> ();
 			var pathCache = diffCache[diff];
 			
-			Tuple<List<Cairo.Rectangle>, List<Cairo.Rectangle>> result;
+			KeyValuePair<List<Cairo.Rectangle>, List<Cairo.Rectangle>> result;
 			if (pathCache.TryGetValue (hunk, out result))
 				return result;
 			
@@ -357,7 +357,7 @@ namespace MonoDevelop.VersionControl.Views
 			var wordDiff = new List<Hunk> (Diff.GetDiff (words.Select (w => editor.GetTextAt (w)).ToArray (),
 				cmpWords.Select (w => MainEditor.GetTextAt (w)).ToArray ()));
 			
-			result = Tuple.Create (CalculateChunkPath (editor, wordDiff, words, true), 
+			result = new KeyValuePair<List<Cairo.Rectangle>,List<Cairo.Rectangle>> (CalculateChunkPath (editor, wordDiff, words, true), 
 				CalculateChunkPath (MainEditor, wordDiff, cmpWords, false));
 			
 			pathCache[hunk] = result;
@@ -585,7 +585,7 @@ namespace MonoDevelop.VersionControl.Views
 				
 				cr.Save ();
 				cr.Translate (-editor.HAdjustment.Value + editor.TextViewMargin.XOffset, -editor.VAdjustment.Value);
-				foreach (var rect in (paintRemoveSide ? paths.Item1 : paths.Item2)) {
+				foreach (var rect in (paintRemoveSide ? paths.Key: paths.Value)) {
 					cr.Rectangle (rect);
 				}
 				

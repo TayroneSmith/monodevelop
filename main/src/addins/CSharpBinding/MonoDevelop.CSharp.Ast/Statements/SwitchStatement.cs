@@ -34,7 +34,7 @@ namespace MonoDevelop.CSharp.Ast
 	/// </summary>
 	public class SwitchStatement : Statement
 	{
-		public static readonly Role<SwitchSection> SwitchSectionRole = new Role<SwitchSection>("SwitchSection");
+		public static readonly Role<SwitchSection> SwitchSectionRole = new Role<SwitchSection>("SwitchSection", (SwitchSection)AstNode.Null);
 		
 		public CSharpTokenNode SwitchToken {
 			get { return GetChildByRole (Roles.Keyword); }
@@ -74,7 +74,7 @@ namespace MonoDevelop.CSharp.Ast
 	
 	public class SwitchSection : AstNode
 	{
-		public static readonly Role<CaseLabel> CaseLabelRole = new Role<CaseLabel>("CaseLabel");
+		public static readonly Role<CaseLabel> CaseLabelRole = new Role<CaseLabel>("CaseLabel", (CaseLabel)AstNode.Null);
 		
 		public override NodeType NodeType {
 			get {

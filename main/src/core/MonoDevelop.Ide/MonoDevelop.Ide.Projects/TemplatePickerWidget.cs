@@ -246,7 +246,7 @@ namespace MonoDevelop.Ide.Projects
 		
 		public string InstalledTemplateSelectedCategory {
 			get {
-				return string.Join ("/", installedTemplateCatView.GetSelection ());
+				return string.Join ("/", installedTemplateCatView.GetSelection ().ToArray ());
 			}
 			set {
 				var cat = value.Split (new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -256,7 +256,7 @@ namespace MonoDevelop.Ide.Projects
 		
 		public string RecentTemplateSelectedCategory {
 			get {
-				return string.Join ("/", recentTemplateCatView.GetSelection ());
+				return string.Join ("/", recentTemplateCatView.GetSelection ().ToArray ());
 			}
 			set {
 				var cat = value.Split (new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -466,7 +466,7 @@ namespace MonoDevelop.Ide.Projects
 			
 			bool MatchesSearch (TemplateItem item)
 			{
-				return string.IsNullOrWhiteSpace (searchFilter)
+				return string.IsNullOrEmpty (searchFilter) || string.IsNullOrEmpty (searchFilter.Trim ())
 					|| item.Name.IndexOf (searchFilter, StringComparison.CurrentCultureIgnoreCase) >= 0
 					|| item.Template.Description.IndexOf (searchFilter, StringComparison.CurrentCultureIgnoreCase) >= 0;
 			}

@@ -123,7 +123,7 @@ namespace MonoDevelop.Core
 		
 		static void DirectoryCopy (FilePath source, FilePath target)
 		{
-			foreach (FilePath f in Directory.EnumerateFiles (source, "*", SearchOption.AllDirectories)) {
+			foreach (FilePath f in Directory.GetFiles (source, "*", SearchOption.AllDirectories)) {
 				var rel = FileService.AbsoluteToRelativePath (source, f);
 				var t = target.Combine (rel);
 				var dir = t.ParentDirectory;

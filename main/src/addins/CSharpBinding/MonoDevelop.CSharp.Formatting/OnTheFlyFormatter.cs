@@ -43,7 +43,7 @@ namespace MonoDevelop.CSharp.Formatting
 	{
 		public static void Format (MonoDevelop.Ide.Gui.Document data, ProjectDom dom)
 		{
-			Format (data, dom, DomLocation.Empty, false);
+			Format (data, dom, DomLocation.Empty, false, false);
 		}
 
 		public static void Format (MonoDevelop.Ide.Gui.Document data, ProjectDom dom, DomLocation location, bool runAferCR = false)
@@ -108,8 +108,8 @@ namespace MonoDevelop.CSharp.Formatting
 			compilationUnit.AcceptVisitor (domIndentationVisitor, null);
 			
 			var changes = new List<Change> ();
-			changes.AddRange (domSpacingVisitor.Changes.Cast<TextReplaceChange> ().Where (c => startOffset < c.Offset && c.Offset < endOffset));
-			changes.AddRange (domIndentationVisitor.Changes.Cast<TextReplaceChange> ().Where (c => startOffset < c.Offset && c.Offset < endOffset));
+			changes.AddRange (domSpacingVisitor.Changes.Cast<TextReplaceChange> ().Where (c => startOffset < c.Offset && c.Offset < endOffset).ToArray ());
+			changes.AddRange (domIndentationVisitor.Changes.Cast<TextReplaceChange> ().Where (c => startOffset < c.Offset && c.Offset < endOffset).ToArray ());
 			int delta = data.Editor.LocationToOffset (member.Location.Line, 1) - startOffset;
 			HashSet<int> lines = new HashSet<int> ();
 			foreach (TextReplaceChange change in changes) {

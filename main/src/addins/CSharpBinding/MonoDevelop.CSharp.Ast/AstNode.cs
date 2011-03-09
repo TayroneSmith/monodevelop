@@ -623,7 +623,7 @@ namespace MonoDevelop.CSharp.Ast
 		public abstract S AcceptVisitor<T, S> (IAstVisitor<T, S> visitor, T data);
 		
 		// the Root role must be available when creating the null nodes, so we can't put it in the Roles class
-		static readonly Role<AstNode> RootRole = new Role<AstNode>("Root");
+		static readonly Role<AstNode> RootRole = new Role<AstNode>("Root", null);
 		
 		public static class Roles
 		{
@@ -636,17 +636,17 @@ namespace MonoDevelop.CSharp.Ast
 			public static readonly Role<Identifier> Identifier = new Role<Identifier>("Identifier", MonoDevelop.CSharp.Ast.Identifier.Null);
 			
 			public static readonly Role<BlockStatement> Body = new Role<BlockStatement>("Body", BlockStatement.Null);
-			public static readonly Role<ParameterDeclaration> Parameter = new Role<ParameterDeclaration>("Parameter");
+			public static readonly Role<ParameterDeclaration> Parameter = new Role<ParameterDeclaration>("Parameter", (ParameterDeclaration)ParameterDeclaration.Null);
 			public static readonly Role<Expression> Argument = new Role<Expression>("Argument", MonoDevelop.CSharp.Ast.Expression.Null);
 			public static readonly Role<AstType> Type = new Role<AstType>("Type", MonoDevelop.CSharp.Ast.AstType.Null);
 			public static readonly Role<Expression> Expression = new Role<Expression>("Expression", MonoDevelop.CSharp.Ast.Expression.Null);
 			public static readonly Role<Expression> TargetExpression = new Role<Expression>("Target", MonoDevelop.CSharp.Ast.Expression.Null);
 			public readonly static Role<Expression> Condition = new Role<Expression>("Condition", MonoDevelop.CSharp.Ast.Expression.Null);
 			
-			public static readonly Role<TypeParameterDeclaration> TypeParameter = new Role<TypeParameterDeclaration>("TypeParameter");
+			public static readonly Role<TypeParameterDeclaration> TypeParameter = new Role<TypeParameterDeclaration>("TypeParameter", (TypeParameterDeclaration)TypeParameterDeclaration.Null);
 			public static readonly Role<AstType> TypeArgument = new Role<AstType>("TypeArgument", AstType.Null);
-			public readonly static Role<Constraint> Constraint = new Role<Constraint>("Constraint");
-			public static readonly Role<VariableInitializer> Variable = new Role<VariableInitializer>("Variable");
+			public readonly static Role<Constraint> Constraint = new Role<Constraint>("Constraint", (Constraint)AstNode.Null);
+			public static readonly Role<VariableInitializer> Variable = new Role<VariableInitializer>("Variable", (VariableInitializer)AstNode.Null);
 			public static readonly Role<Statement> EmbeddedStatement = new Role<Statement>("EmbeddedStatement", Statement.Null);
 			
 			public static readonly Role<CSharpTokenNode> Keyword = new Role<CSharpTokenNode>("Keyword", CSharpTokenNode.Null);
@@ -667,7 +667,7 @@ namespace MonoDevelop.CSharp.Ast
 			public static readonly Role<CSharpTokenNode> Assign = new Role<CSharpTokenNode>("Assign", CSharpTokenNode.Null);
 			public static readonly Role<CSharpTokenNode> Colon = new Role<CSharpTokenNode>("Colon", CSharpTokenNode.Null);
 			
-			public static readonly Role<Comment> Comment = new Role<Comment>("Comment");
+			public static readonly Role<Comment> Comment = new Role<Comment>("Comment", (Comment)AstNode.Null);
 			
 		}
 	}

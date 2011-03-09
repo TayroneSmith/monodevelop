@@ -132,6 +132,8 @@ namespace MonoDevelop.WelcomePage
 		
 		static void UpdateNewsXmlAsync ()
 		{
+			return;
+			/*
 			//check to see if the online news file has been modified since it was last downloaded
 			string netNewsXml = WelcomePageView.netNewsXml;
 			LoggingService.LogInfo ("Updating Welcome Page from '{0}'.", netNewsXml);
@@ -172,6 +174,7 @@ namespace MonoDevelop.WelcomePage
 				lock (updateLock)
 					isUpdating = false;
 			}
+			*/
 		}
 		
 		public static void UpdateNews ()

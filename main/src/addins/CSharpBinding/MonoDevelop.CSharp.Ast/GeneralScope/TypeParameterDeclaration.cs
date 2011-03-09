@@ -36,7 +36,7 @@ namespace MonoDevelop.CSharp.Ast
 	/// </summary>
 	public class TypeParameterDeclaration : AstNode
 	{
-		public static readonly Role<CSharpTokenNode> VarianceRole = new Role<CSharpTokenNode>("Variance");
+		public static readonly Role<CSharpTokenNode> VarianceRole = new Role<CSharpTokenNode>("Variance", (CSharpTokenNode)AstNode.Null);
 		
 		public override NodeType NodeType {
 			get { return NodeType.Unknown; }
