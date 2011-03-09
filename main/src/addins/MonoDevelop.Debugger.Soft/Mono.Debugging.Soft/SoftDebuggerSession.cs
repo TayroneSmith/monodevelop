@@ -704,8 +704,11 @@ namespace Mono.Debugging.Soft
 
 			if (source_to_type.TryGetValue (filename, out types)) {
 				foreach (TypeMirror t in types) {
-					target_loc = GetLocFromType (t, filename, line, out inisideLoadedRange);
-					if (target_loc != null || inisideLoadedRange)
+					bool insideRange;
+					target_loc = GetLocFromType (t, filename, line, out insideRange);
+					if (insideRange)
+						inisideLoadedRange = true;
+					if (target_loc != null)
 						break;
 				}
 			}
@@ -1273,19 +1276,15 @@ namespace Mono.Debugging.Soft
 						if (rangeFirstLine == -1)
 							rangeFirstLine = l.LineNumber;
 					} else {
-						if (rangeFirstLine != -1 && line >= rangeFirstLine && line <= rangeLastLine) {
+						if (rangeFirstLine != -1 && line >= rangeFirstLine && line <= rangeLastLine)
 							insideTypeRange = true;
-							return null;
-						}
 						rangeFirstLine = -1;
 					}
 				}
 				if (target_loc != null)
 					break;
-				if (rangeFirstLine != -1 && line >= rangeFirstLine && line <= rangeLastLine) {
+				if (rangeFirstLine != -1 && line >= rangeFirstLine && line <= rangeLastLine)
 					insideTypeRange = true;
-					return null;
-				}
 			}
 	
 			return target_loc;
