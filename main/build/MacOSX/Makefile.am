@@ -48,6 +48,7 @@ MonoDevelop.app:
 	cp -pR ../AddIns $(MAC_APP_LIB_DIR)
 	cp -pR ../data $(MAC_APP_LIB_DIR)
 	cp -pR ../bin $(MAC_APP_LIB_DIR)
+	cp -pR app.config.osx $(MAC_APP_LIB_DIR)/bin/MonoDevelop.exe.config
 	cp -pR ../locale $(MAC_APP_DIR)/Contents/MacOS/share
 	mkdir -p $(MAC_APP_DIR)/Contents/MacOS/share/monodevelop
 	cp ../../COPYING $(MAC_APP_DIR)/Contents/MacOS/share/monodevelop/COPYING.LGPL2.1

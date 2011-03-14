@@ -93,7 +93,7 @@ fi
 if test "x$has_mono" = "xtrue"; then
     if test `uname -s` = "Darwin"; then
 	AC_PATH_PROG(RUNTIME, mono, no)
-	AC_PATH_PROG(CSC, dmcs, no)
+	AC_PATH_PROG(CSC, dmcs, gmcs)
 	LIB_PREFIX=
 	LIB_SUFFIX=.dylib
     else
