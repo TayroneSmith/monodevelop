@@ -68,7 +68,7 @@ sub prepare_sources {
 
 sub build_monodevelop {
 	chdir "$root/monodevelop";
-	system("./configure --profile=mac");
+	system("./configure --profile=mac_unity");
 	system("make");
 }
 
