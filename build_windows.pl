@@ -126,6 +126,8 @@ unlink "$javascriptFiles/nunit.framework.dll" or die ("unlink fail");
 
 chdir "$root/boo-md-addins";
 copy "$root/monodevelop/dependencies/build.properties", "$root/boo-md-addins/build.properties";
+# Hack booc.exe.config to allow running on .net4 until we have a stable nant that supports .net4
+copy "$root/monodevelop/dependencies/booc.exe.config", "$root/boo/build/booc.exe.config";
 system("$nant rebuild") && die ("Failed to build Boo MD Addins");
 copy "$root/boo-md-addins/build/Boo.MonoDevelop.dll", "$mdRoot/AddIns/BackendBindings/Boo";
 copy "$root/boo-md-addins/build/Boo.Ide.dll", "$mdRoot/AddIns/BackendBindings/Boo";
