@@ -8,7 +8,7 @@ using System.Text;
 
 namespace MonoDevelop.VersionControl.Views
 {
-	internal class LogView : BaseView, IAttachableViewContent 
+	public class LogView : BaseView, IAttachableViewContent 
 	{
 		string filepath;
 		LogWidget widget;
