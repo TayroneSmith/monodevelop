@@ -22,9 +22,14 @@ rmtree "gtk";
 system("unzip dependencies/$gtkFileName.zip");
 system("mv gtk-2.20-bundle-osx gtk");
 
-chdir "$root/monodevelop/main/build/MacOSX";
+print "Changing to $root/monodevelop/main/build/MacOSX\n";
+chdir "$root/monodevelop/main/build/MacOSX" || die ("Failed entering OSX build dir");
 # Create MonoDevelop application bundle
 system("make mono-bundle") && die ("Failed to make mono-bundle");
+# Install mono-addins into app bundle
+system("gacutil -i $root/dependencies/mono-addins/Mono.Addins.dll -root MonoDevelop.app/Contents/Frameworks/Mono.framework/Versions/Current/lib") && die ("Failed installing mono-addins");
+system("gacutil -i $root/dependencies/mono-addins/Mono.Addins.Gui.dll -root MonoDevelop.app/Contents/Frameworks/Mono.framework/Versions/Current/lib") && die ("Failed installing mono-addins");
+system("gacutil -i $root/dependencies/mono-addins/Mono.Addins.Setup.dll -root MonoDevelop.app/Contents/Frameworks/Mono.framework/Versions/Current/lib") && die ("Failed installing mono-addins");
 # Archive the app for placement in unity installer
 unlink "$root/MonoDevelop.app.tar.gz", "$root/MonoDevelop.dmg", "MonoDevelop.app.tar.gz";
 system("tar -pczf MonoDevelop.app.tar.gz --exclude=.svn MonoDevelop.app");
