@@ -66,9 +66,6 @@ export PATH="$DIR/bin:$PATH"
 export DYLD_FALLBACK_LIBRARY_PATH="$DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 export PKG_CONFIG_PATH="$DIR/lib/pkgconfig:$DIR/share/pkgconfig:$PKG_CONFIG_PATH"
 
-#mono version check
-if ! "$DIR/mono-version-check" MonoDevelop 2 6 7 ; then exit 1; fi
-
 # The Mono "External" folder allows users (such as MonoDroid) to install
 # things without worrying that they'll be removed next time mono is upgraded
 # Mono doesn't support it get so we hack it via env vars for now.
@@ -100,8 +97,8 @@ fi
 echo "Launching ${APPNAME}..."
 if [ -z "$MD_DONT_REDIRECT_OUTPUT" ]; then
 	mkdir -p "`dirname \"$_MD_LOG_FILE\"`"
-	exec "$DIR/bin/monodevelop" $_MONO_OPTIONS "$EXE_PATH" $* 2>&1 1> "$_MD_LOG_FILE"
+	exec mono $_MONO_OPTIONS "$EXE_PATH" $* 2>&1 1> "$_MD_LOG_FILE"
 else
-	exec "$DIR/bin/monodevelop" $_MONO_OPTIONS "$EXE_PATH" $*
+	exec mono $_MONO_OPTIONS "$EXE_PATH" $*
 fi
 
