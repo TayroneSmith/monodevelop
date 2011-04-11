@@ -49,7 +49,7 @@ rm -rf "${TMPDIR}/lib/pango"
 mkdir -p "${TMPDIR}/lib"
 cp -R "${MONO_FRAMEWORK_PATH}/lib/pango" "${TMPDIR}/lib"
 
-find "${MONO_FRAMEWORK_PATH}/bin" -name '*.in' -execdir "${DIR}/replacePath.sh" "{}" \;
+find "${MONO_FRAMEWORK_PATH}/bin" -name '*.in' -execdir "${DIR}/replacePathQuoted.sh" "{}" \;
 
 #we need lots of file handles
 ulimit -n 1024
