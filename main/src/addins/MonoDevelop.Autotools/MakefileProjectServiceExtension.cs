@@ -162,9 +162,10 @@ namespace MonoDevelop.Autotools
 			monitor.BeginTask (GettextCatalog.GetString ("Building {0}", project.Name), 1);
 			try {
 				string baseDir = project.BaseDirectory;
+				baseDir = Path.GetDirectoryName (data.AbsoluteMakefileName);
 				StringBuilder args = new StringBuilder ();
 				
-				if (data.RelativeMakeCommand.EndsWith ("make", StringComparison.OrdinalIgnoreCase))
+				if (1 < data.ParallelProcesses)
 					args.AppendFormat (" -j {0}", data.ParallelProcesses, data.BuildTargetName);
 				args.AppendFormat (" {0}", data.BuildTargetName);
 	

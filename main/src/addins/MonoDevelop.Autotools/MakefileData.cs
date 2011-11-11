@@ -144,7 +144,7 @@ namespace MonoDevelop.Autotools
 		}
 
 		public bool SupportsIntegration {
-			get { return IntegrationEnabled && !Platform.IsWindows; }
+			get { return IntegrationEnabled; }
 		}
 		
 		[ItemProperty (DefaultValue = "make")]

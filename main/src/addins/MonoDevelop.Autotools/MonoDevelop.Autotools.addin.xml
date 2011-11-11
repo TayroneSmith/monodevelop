@@ -40,13 +40,10 @@
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/ProjectModel/ProjectServiceExtensions">
-		<Condition id="Platform" value="!windows">
 			<Class class = "MonoDevelop.Autotools.MakefileProjectServiceExtension" id="MakefileProjectServiceExtension" insertafter="FinalStep"/>
-		</Condition>
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/Commands">
-		<Condition id="Platform" value="!windows">
 			<Category _name = "Autotools" id = "Autotools">
 			<Command id = "MonoDevelop.Autotools.Commands.GenerateFiles"
 				_label = "Generate Makefiles..."
@@ -55,51 +52,34 @@
 				type="check"
 				_label = "Include in Synchronized Makefile" />
 			</Category>
-		</Condition>
-	</Extension>
+=	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/Tools">
 		<Condition id="ItemType" value="Solution|Project">
-			<Condition id="Platform" value="!windows">
 				<CommandItem id = "MonoDevelop.Autotools.Commands.GenerateFiles" insertafter="ExportListSeparator"/>
-			</Condition>
 		</Condition>
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/MainMenu/Project">
-		<Condition id="Platform" value="!windows">
 			<CommandItem id = "MonoDevelop.Autotools.Commands.GenerateFiles" insertafter="MonoDevelop.Ide.Commands.ProjectCommands.ExportProject"/>
-		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad/QuickProperties">
-		<Condition id="Platform" value="!windows">
 			<Condition id="ItemType" value="ProjectFile">
 				<CommandItem id = "MonoDevelop.Autotools.Commands.SynchWithMakefile" />
 			</Condition>
-		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/Pads/ProjectPad">
-		<Condition id="Platform" value="!windows">
 			<NodeBuilder class = "MonoDevelop.Autotools.FileNodeBuilderExtension"/>
-		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/DeployService/PackageBuilders">
-		<Condition id="Platform" value="!windows">
-			<Condition id="Platform" value="!windows">
 				<Class class="MonoDevelop.Autotools.TarballDeployTarget" />
-			</Condition>
-		</Condition>
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Deployment/PackageBuilderEditors">
-		<Condition id="Platform" value="!windows">
-			<Condition id="Platform" value="!windows">
 				<Class class="MonoDevelop.Autotools.TarballTargetEditor" />
-			</Condition>
-		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/ProjectModel/SerializableClasses">
@@ -107,12 +87,10 @@
 	</Extension>
 
 	<Extension path = "/MonoDevelop/ProjectModel/Gui/ItemOptionPanels/Common">
-		<Condition id="Platform" value="!windows">
 			<Condition id="ItemType" value="Project">
 				<Section id= "Makefile" _label = "Makefile Integration"
 					class = "MonoDevelop.Autotools.MakefileOptionPanel" />
 			</Condition>
-		</Condition>
 	</Extension>
 
 	<Extension path = "/MonoDevelop/ProjectModel/ExtendedProperties">
@@ -121,22 +99,16 @@
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/DesignerSupport/PropertyProviders">
-		<Condition id="Platform" value="!windows">
 			<Class class = "MonoDevelop.Autotools.PropertyProvider"/>
-		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Core/Applications">
-		<Condition id="Platform" value="!windows">
 			<Application id = "generate-makefiles" class = "MonoDevelop.Autotools.MakefileGeneratorTool" description = "Makefile generator tool"/>
-		</Condition>
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Autotools/MakefileHandlers">
-		<Condition id="Platform" value="!windows">
 			<Class class = "MonoDevelop.Autotools.SolutionMakefileHandler"/>
 			<Class class = "MonoDevelop.Autotools.SimpleProjectMakefileHandler"/>
-		</Condition>
 	</Extension>
 	
 <!--
