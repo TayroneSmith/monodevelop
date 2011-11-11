@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			return new CompositeTypeResolveContext(new [] { a, b });
 		}
 		
-		readonly ITypeResolveContext[] children;
+		public readonly ITypeResolveContext[] Children;
 		
 		/// <summary>
 		/// Creates a new <see cref="CompositeTypeResolveContext"/>
@@ -53,8 +53,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		{
 			if (children == null)
 				throw new ArgumentNullException("children");
-			this.children = children.ToArray();
-			foreach (ITypeResolveContext c in this.children) {
+			this.Children = children.ToArray();
+			foreach (ITypeResolveContext c in this.Children) {
 				if (c == null)
 					throw new ArgumentException("children enumeration contains nulls");
 			}
@@ -63,13 +63,13 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		private CompositeTypeResolveContext(ITypeResolveContext[] children)
 		{
 			Debug.Assert(children != null);
-			this.children = children;
+			this.Children = children;
 		}
 		
 		/// <inheritdoc/>
 		public virtual ITypeDefinition GetKnownTypeDefinition(TypeCode typeCode)
 		{
-			foreach (ITypeResolveContext context in children) {
+			foreach (ITypeResolveContext context in Children) {
 				ITypeDefinition d = context.GetKnownTypeDefinition(typeCode);
 				if (d != null)
 					return d;
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		/// <inheritdoc/>
 		public ITypeDefinition GetTypeDefinition(string nameSpace, string name, int typeParameterCount, StringComparer nameComparer)
 		{
-			foreach (ITypeResolveContext context in children) {
+			foreach (ITypeResolveContext context in Children) {
 				ITypeDefinition d = context.GetTypeDefinition(nameSpace, name, typeParameterCount, nameComparer);
 				if (d != null)
 					return d;
@@ -91,25 +91,25 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		/// <inheritdoc/>
 		public IEnumerable<ITypeDefinition> GetTypes()
 		{
-			return children.SelectMany(c => c.GetTypes());
+			return Children.SelectMany(c => c.GetTypes());
 		}
 		
 		/// <inheritdoc/>
 		public IEnumerable<ITypeDefinition> GetTypes(string nameSpace, StringComparer nameComparer)
 		{
-			return children.SelectMany(c => c.GetTypes(nameSpace, nameComparer));
+			return Children.SelectMany(c => c.GetTypes(nameSpace, nameComparer));
 		}
 		
 		/// <inheritdoc/>
 		public IEnumerable<string> GetNamespaces()
 		{
-			return children.SelectMany(c => c.GetNamespaces()).Distinct();
+			return Children.SelectMany(c => c.GetNamespaces()).Distinct();
 		}
 		
 		/// <inheritdoc/>
 		public string GetNamespace(string nameSpace, StringComparer nameComparer)
 		{
-			foreach (ITypeResolveContext context in children) {
+			foreach (ITypeResolveContext context in Children) {
 				string r = context.GetNamespace(nameSpace, nameComparer);
 				if (r != null)
 					return r;
@@ -120,13 +120,13 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		/// <inheritdoc/>
 		public virtual ISynchronizedTypeResolveContext Synchronize()
 		{
-			ISynchronizedTypeResolveContext[] sync = new ISynchronizedTypeResolveContext[children.Length];
+			ISynchronizedTypeResolveContext[] sync = new ISynchronizedTypeResolveContext[Children.Length];
 			bool success = false;
 			try {
 				for (int i = 0; i < sync.Length; i++) {
-					sync[i] = children[i].Synchronize();
+					sync[i] = Children[i].Synchronize();
 					if (sync[i] == null)
-						throw new InvalidOperationException(children[i] + ".Synchronize() returned null");
+						throw new InvalidOperationException(Children[i] + ".Synchronize() returned null");
 				}
 				var knownTypeDefinitions = new ITypeDefinition[ReflectionHelper.ByTypeCodeArraySize];
 				var r = new CompositeSynchronizedTypeResolveContext(sync, knownTypeDefinitions, new CacheManager(), true);
@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			public void Dispose()
 			{
 				if (isTopLevel) {
-					foreach (ISynchronizedTypeResolveContext element in children) {
+					foreach (ISynchronizedTypeResolveContext element in Children) {
 						element.Dispose();
 					}
 					// When the top-level synchronized block is closed, clear any cached data
@@ -195,7 +195,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			{
 				// re-use the same cache manager for nested synchronized contexts
 				if (isTopLevel)
-					return new CompositeSynchronizedTypeResolveContext(children, knownTypeDefinitions, cacheManager, false);
+					return new CompositeSynchronizedTypeResolveContext(Children, knownTypeDefinitions, cacheManager, false);
 				else
 					return this;
 			}
