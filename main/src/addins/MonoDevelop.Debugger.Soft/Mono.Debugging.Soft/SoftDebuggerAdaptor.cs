@@ -717,7 +717,21 @@ namespace Mono.Debugging.Soft
 
 		public override bool IsNull (EvaluationContext ctx, object val)
 		{
-			return val == null || ((val is PrimitiveValue) && ((PrimitiveValue)val).Value == null);
+            bool rv = (val == null || ((val is PrimitiveValue) && ((PrimitiveValue)val).Value == null));
+
+            // HACK: Mark "null" Unity objects as null
+            if (!rv && (val is ObjectMirror)) {
+                ObjectMirror objekt = val as ObjectMirror;
+                TypeMirror type = (TypeMirror)GetBaseType(ctx, objekt.Type, false);
+                if (null != type && !string.IsNullOrEmpty (type.FullName) && (type.FullName.StartsWith ("UnityEngine.", StringComparison.Ordinal) || type.FullName.StartsWith ("UnityEditor.", StringComparison.Ordinal)))
+                {
+                    SoftEvaluationContext cx = (SoftEvaluationContext)ctx;
+                    MethodMirror method = OverloadResolve(cx, "GetInstanceID", objekt.Type, new TypeMirror[] { }, true, false, false);
+                    Value v = cx.RuntimeInvoke(method, val, new Value[] { });
+                    rv = (v is PrimitiveValue && ((int)(((PrimitiveValue)v).Value)) == 0);
+                }
+            }
+            return rv;
 		}
 
 		public override bool IsPrimitive (EvaluationContext ctx, object val)

@@ -5,14 +5,18 @@ MAC_APP_LIB_DIR=$(MACOS)/lib/monodevelop
 ADDINS=$(MACOS)/lib/monodevelop/AddIns
 EXTRAS=$(top_srcdir)/../extras
 ARTIFACTS=$(top_srcdir)/../../artifacts
+BUNDLED_FRAMEWORK_DIR=$(MAC_APP_DIR)/Contents/Frameworks/Mono.framework
+FINAL_INSTALL_DIR=/Applications/$(MAC_APP_DIR)
+MODERN_GTK_DIR=../../../../gtk
 
 CLEANFILES = MonoDevelop.dmg MonoDevelop.app
 #DISTCLEANFILES = 
 EXTRA_DIST = dmg-bg.png DS_Store Info.plist.in make-dmg-bundle.sh mdtool monodevelop 
+CURRENT=$(shell readlink /Library/Frameworks/Mono.framework/Versions/Current)
 
 all: MonoDevelop.app
 
-MonoDevelop.dmg: MonoDevelop.app
+MonoDevelop.dmg: mono-bundle
 	./make-dmg-bundle.sh
 
 clean-local:
@@ -44,12 +48,16 @@ MonoDevelop.app:
 	cp -pR ../AddIns $(MAC_APP_LIB_DIR)
 	cp -pR ../data $(MAC_APP_LIB_DIR)
 	cp -pR ../bin $(MAC_APP_LIB_DIR)
+	mkdir -p ../locale
 	cp -pR ../locale $(MAC_APP_DIR)/Contents/MacOS/share
 	mkdir -p $(MAC_APP_DIR)/Contents/MacOS/share/monodevelop
 	cp ../../COPYING $(MAC_APP_DIR)/Contents/MacOS/share/monodevelop/COPYING.LGPL2.1
 	
 	sed -e "s/@BUNDLE_VERSION@/$(BUNDLE_VERSION)/" -e "s/@ASSEMBLY_VERSION@/$(ASSEMBLY_VERSION)/" Info.plist.in > $(MAC_APP_DIR)/Contents/Info.plist
 	cp ../../theme-icons/Mac/*.icns $(MAC_APP_DIR)/Contents/Resources/
+	cp monodevelop.orig $(MACOS)/monodevelop
+	cp mdtool.orig $(MACOS)/mdtool
+	cp MonoDevelopProperties.xml EditingLayout2.xml $(MAC_APP_DIR)/Contents/MacOS/lib/monodevelop/data/options
 
 # copy monodevelop.pc and monodevelop-core-addins.pc to Contents/MacOS/lib/pkgconfig
 	mkdir -p $(MACOS)/lib/pkgconfig
@@ -118,8 +126,7 @@ MonoDevelop.app:
 	mkdir -p $(MACOS)/MonoDoc.app/
 	test ! -d $(ARTIFACTS)/MoonSDK ||  cp -pR $(ARTIFACTS)/MoonSDK/* $(MACOS)/lib/moonlight/
 	test ! -d $(ARTIFACTS)/MonoDoc.app ||  cp -pR $(ARTIFACTS)/MonoDoc.app/* $(MACOS)/MonoDoc.app/
-
-	cp -r MDMonitor.app $(MACOS)
+	test ! -d MDMonitor.app ||  cp -pR MDMonitor.app $(MACOS)
 
 # update revision in updateinfo
 	@echo ""
@@ -129,7 +136,7 @@ MonoDevelop.app:
 	echo "a3140c14-ef90-4019-ae6c-9d93804d6611 $$(cat release-info)" > "$(MACOS)/updateinfo"
 	
 	echo "Release ID: $$(cat release-info)" > "$(MACOS)/lib/monodevelop/bin/buildinfo"
-	@cat ../bin/buildinfo >> "$(MACOS)/lib/monodevelop/bin/buildinfo"
+	@if test -e ../bin/buildinfo; then cat ../bin/buildinfo >> "$(MACOS)/lib/monodevelop/bin/buildinfo"; fi
 
 # touch the directory so that update dependencies work
 	touch MonoDevelop.app
@@ -141,7 +148,50 @@ MonoDevelop.app:
 	@echo ""
 	@rm -f missing-stuff
 
-MonoDevelop.app.zip: MonoDevelop.app
+mono-bundle: MonoDevelop.app
+#########################
+# Bundle mono
+	echo "Preparing mono bundle..."
+	mkdir -p $(MAC_APP_DIR)/Contents/Frameworks
+
+# Copy system mono framework
+	echo "Copying system framework ($(CURRENT))"
+	rm -rf $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework
+	mkdir -p $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Versions
+	cp -R /Library/Frameworks/Mono.framework/Versions/$(CURRENT) $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Versions
+	ln -s Versions/Current/bin $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Commands
+	ln -s Versions/Current/include $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Headers
+	ln -s Versions/Current $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Home
+	ln -s Versions/Current/lib $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Libraries
+	ln -s Libraries/libmono.dylib $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Mono
+	ln -s Versions/Current/Resources $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Resources
+	ln -s $(CURRENT) $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Versions/Current
+	./transplant_gtk.sh $(MODERN_GTK_DIR) $(BUNDLED_FRAMEWORK_DIR)/Versions/Current
+	mkdir -p $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango
+	cp pangorc $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango
+	cp monodevelop $(MACOS)/monodevelop
+	cp mdtool $(MACOS)/mdtool
+	cp replacePath.sh $(MACOS)/replacePath.sh
+	cp replacePathQuoted.sh $(MACOS)/replacePathQuoted.sh
+	chmod +x $(MACOS)/monodevelop $(MACOS)/mdtool
+
+# Relocate .exe.config, .dll.config, pixbuf loaders, and .pc files
+	echo "Relocating config files"
+	find $(BUNDLED_FRAMEWORK_DIR) -name '*.config' -exec ./copyToInputFile.sh {} \;
+	find $(BUNDLED_FRAMEWORK_DIR) -name '*.pc' -exec ./copyToInputFile.sh {} \;
+	find $(BUNDLED_FRAMEWORK_DIR) -name '*.loaders' -exec ./copyToInputFile.sh {} \;
+	./copyToInputFile.sh $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/mono/config
+	./copyToInputFile.sh $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango/pango.modules
+	./copyToInputFile.sh $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango/pangorc
+	rm -f $(MAC_APP_LIB_DIR)/bin/MonoDevelop.exe.config
+
+# Relocate launcher scripts
+	echo "Relocating launcher scripts"
+	file $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/bin/* | grep 'shell script' | awk -F: '{ print $$1 }' | xargs -n 1 ./copyToInputFile.sh
+#
+#########################
+	
+MonoDevelop.app.zip: mono-bundle
 	zip -r9uyq MonoDevelop.app.zip MonoDevelop.app
 
 update-png:

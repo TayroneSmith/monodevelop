@@ -93,11 +93,16 @@ namespace MonoDevelop.AnalysisCore.Gui
 		//FIXME: rate-limit this, so we don't send multiple new documents while it's processing
 		void OnDocumentParsed (object sender, EventArgs args)
 		{
-			var doc = Document.ParsedDocument;
-			if (doc == null)
-				return;
-			var treeType = new RuleTreeType ("Document", Path.GetExtension (doc.FileName));
-			AnalysisService.QueueAnalysis (Document, treeType, UpdateResults);
+			try
+			{
+				var doc = this.Document;
+				if (doc == null || string.IsNullOrEmpty (Path.GetExtension (doc.FileName))) return;
+				
+				var treeType = new RuleTreeType("Document", Path.GetExtension(doc.FileName));
+				AnalysisService.QueueAnalysis(doc, treeType, UpdateResults);
+			} catch (NullReferenceException nre) {
+				MonoDevelop.Core.LoggingService.LogError("NRE in OnDocumentParsed", nre);
+			}
 		}
 		
 		void UpdateResults (IList<Result> results)

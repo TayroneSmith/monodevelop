@@ -210,11 +210,13 @@ namespace MonoDevelop.Ide.Gui.Dialogs
 			if (entry is Solution) {
 				SolutionConfiguration cc = (SolutionConfiguration) conf;
 				foreach (ConfigurationData data in children) {
-					SolutionConfigurationEntry ce;
+					SolutionConfigurationEntry ce = null;
 					if (sourceName != null)
 						ce = cc.GetEntryForItem ((SolutionEntityItem)data.Entry);
-					else
+					if (ce == null)
 						ce = cc.AddItem ((SolutionEntityItem) data.Entry);
+					if (ce == null)
+						continue;
 					if (createChildConfigurations) {
 						ce.ItemConfiguration = name;
 						if (data.Configurations [name] == null)

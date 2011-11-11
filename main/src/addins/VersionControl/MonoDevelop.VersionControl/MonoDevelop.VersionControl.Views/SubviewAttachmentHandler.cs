@@ -37,27 +37,47 @@ namespace MonoDevelop.VersionControl.Views
 		protected override void Run ()
 		{
 			Ide.IdeApp.Workbench.DocumentOpened += HandleDocumentOpened;
+			Core.FileService.FileChanged += HandleCoreFileServiceFileChanged;
+		}
+		
+		void AttachViewContents (MonoDevelop.Ide.Gui.Document document)
+		{
+			if (document == null || document.Project == null)
+				return;
+			var repo = VersionControlService.GetRepository (document.Project);
+			if (repo == null)
+				return;
+			if (!document.IsFile || !repo.GetVersionInfo (document.FileName).IsVersioned)
+				return;
+			if (document.Editor == null)
+				return;
+			
+			var item = new VersionControlItem (repo, document.Project, document.FileName, false, null);
+			TryAttachView <IDiffView> (document, item, DiffCommand.DiffViewHandlers);
+			TryAttachView <IBlameView> (document, item, BlameCommand.BlameViewHandlers);
+			TryAttachView <ILogView> (document, item, LogCommand.LogViewHandlers);
+			TryAttachView <IMergeView> (document, item, MergeCommand.MergeViewHandlers);
+		}
+
+		void HandleCoreFileServiceFileChanged (object sender, Core.FileEventArgs e)
+		{
+			foreach (Core.FileEventInfo info in e) {
+				AttachViewContents (Ide.IdeApp.Workbench.GetDocument (info.FileName.FullPath));
+			}
 		}
 
 		void HandleDocumentOpened (object sender, Ide.Gui.DocumentEventArgs e)
 		{
-			if (!e.Document.IsFile || e.Document.Project == null)
-				return;
-			
-			var repo = VersionControlService.GetRepository (e.Document.Project);
-			if (repo == null || !repo.GetVersionInfo (e.Document.FileName).IsVersioned)
-				return;
-			
-			var item = new VersionControlItem (repo, e.Document.Project, e.Document.FileName, false, null);
-			TryAttachView <IDiffView> (e.Document, item, DiffCommand.DiffViewHandlers);
-			TryAttachView <IBlameView> (e.Document, item, BlameCommand.BlameViewHandlers);
-			TryAttachView <ILogView> (e.Document, item, LogCommand.LogViewHandlers);
-			TryAttachView <IMergeView> (e.Document, item, MergeCommand.MergeViewHandlers);
+			AttachViewContents (e.Document);
 		}
 		
-		void TryAttachView <T>(Document document, VersionControlItem item, string type)
+		void TryAttachView <T> (Document document, VersionControlItem item, string type)
 			where T : IAttachableViewContent
 		{
+			// Don't reattach existing views
+			if (0 <= document.Window.FindView<T> ())
+				return;
+				
 			var handler = AddinManager.GetExtensionObjects<IVersionControlViewHandler<T>> (type).FirstOrDefault (h => h.CanHandle (item));
 			if (handler != null) {
 				document.Window.AttachViewContent (handler.CreateView (item, document.PrimaryView));

@@ -53,6 +53,7 @@ namespace MonoDevelop.CSharp.Formatting
 			panel.Policy = policy.Clone ();
 		}
 		
+		
 		protected override CSharpFormattingPolicy GetPolicy ()
 		{
 			// return cloned policy

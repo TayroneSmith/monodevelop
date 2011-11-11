@@ -111,7 +111,7 @@ namespace MonoDevelop.VersionControl.Git
 		{
 			MessageDialogProgressMonitor monitor = new MessageDialogProgressMonitor (true, false, false, true);
 			try {
-				IdeApp.Workbench.AutoReloadDocuments = true;
+				// IdeApp.Workbench.AutoReloadDocuments = true;
 				IdeApp.Workbench.LockGui ();
 				System.Threading.ThreadPool.QueueUserWorkItem (delegate {
 					try {
@@ -124,7 +124,7 @@ namespace MonoDevelop.VersionControl.Git
 				});
 				monitor.AsyncOperation.WaitForCompleted ();
 			} finally {
-				IdeApp.Workbench.AutoReloadDocuments = false;
+				// IdeApp.Workbench.AutoReloadDocuments = false;
 				IdeApp.Workbench.UnlockGui ();
 			}
 		}

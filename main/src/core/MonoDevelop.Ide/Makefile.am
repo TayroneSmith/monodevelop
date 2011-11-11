@@ -679,6 +679,7 @@ FILES =  \
 	MonoDevelop.Ide.Updater/IUpdateHandler.cs \
 	MonoDevelop.Ide.Updater/UpdateCheckHandler.cs \
 	MonoDevelop.Ide.Updater/UpdateService.cs \
+	MonoDevelop.Ide.Updater/UpdateTagExtensionNode.cs \
 	MonoDevelop.Ide.WebBrowser/IWebBrowser.cs \
 	MonoDevelop.Ide.WebBrowser/IWebBrowserLoader.cs \
 	MonoDevelop.Ide.WebBrowser/LoadingProgressChangedEventArgs.cs \

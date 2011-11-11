@@ -109,8 +109,10 @@ namespace MonoDevelop.CSharp.Resolver
 				return null;
 			}
 
-			var doc = IdeApp.Workbench.ActiveDocument;
-			if (doc == null) {
+			string fileName = data.Document.FileName;
+			MonoDevelop.Ide.Gui.Document doc = IdeApp.Workbench.GetDocument (fileName);
+
+			if (doc == null || doc.Editor == null) {
 				return null;
 			}
 			var parsedDocument = doc.ParsedDocument;

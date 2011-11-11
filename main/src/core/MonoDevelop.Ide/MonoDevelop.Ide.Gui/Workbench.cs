@@ -75,7 +75,7 @@ namespace MonoDevelop.Ide.Gui
 				monitor.Step (1);
 				
 				Counters.Initialization.Trace ("Initializing Workspace");
-				workbench.InitializeWorkspace();
+				workbench.InitializeWorkspace ();
 				monitor.Step (1);
 				
 				Counters.Initialization.Trace ("Initializing Layout");
@@ -95,6 +95,8 @@ namespace MonoDevelop.Ide.Gui
 				};
 				
 				pads = null;	// Make sure we get an up to date pad list.
+				AutoReloadDocuments = true;
+				
 				monitor.Step (1);
 			} finally {
 				monitor.EndTask ();

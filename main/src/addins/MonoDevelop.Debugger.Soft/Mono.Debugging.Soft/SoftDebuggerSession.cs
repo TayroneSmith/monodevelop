@@ -34,6 +34,7 @@ using Mono.Debugging.Client;
 using Mono.Debugger.Soft;
 using Mono.Debugging.Evaluation;
 using MDB = Mono.Debugger.Soft;
+using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Reflection;
@@ -510,7 +511,8 @@ namespace Mono.Debugging.Soft
 
 		protected override void OnAttachToProcess (long processId)
 		{
-			throw new System.NotSupportedException ();
+			long port = 56000 + (processId % 1000);
+			StartConnecting (new SoftDebuggerStartInfo (new SoftDebuggerConnectArgs (null, IPAddress.Loopback, (int)port)), 3, 1000);
 		}
 
 		protected override void OnContinue ()
@@ -530,7 +532,9 @@ namespace Mono.Debugging.Soft
 
 		protected override void OnDetach ()
 		{
-			throw new System.NotSupportedException ();
+			EndLaunch ();
+			vm.Dispose ();
+			vm = null;
 		}
 
 		protected override void OnExit ()
@@ -936,7 +940,11 @@ namespace Mono.Debugging.Soft
 				if (es.Events.Length != 1)
 					throw new InvalidOperationException ("EventSet has unexpected combination of events");
 				HandleEvent (es[0]);
-				vm.Resume ();
+				try {
+					vm.Resume ();
+				} catch (InvalidOperationException) {
+					// The VM is not suspended!
+				}
 			}
 		}
 		
@@ -1036,18 +1044,26 @@ namespace Mono.Debugging.Soft
 				}
 				
 				// Remove affected types from the loaded types list
-				var affectedTypes = new List<string> (
-					from pair in types
-					where pair.Value.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase)
-					select pair.Key
-				);
+				List<string> affectedTypes = new List<string>();
+				foreach (var pair in types) {
+					try {
+						if (!pair.Value.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase))
+							continue;
+					} catch { 
+					}
+					affectedTypes.Add (pair.Key);
+				}
 				foreach (string typename in affectedTypes) {
 					types.Remove (typename);
 				}
 				
 				foreach (var pair in source_to_type) {
 					pair.Value.RemoveAll (delegate (TypeMirror mirror){
-						return mirror.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase);
+						try {
+							return mirror.Assembly.Location.Equals (aue.Assembly.Location, StringComparison.OrdinalIgnoreCase);
+						} catch {
+						}
+						return true;
 					});
 				}
 				OnDebuggerOutput (false, string.Format ("Unloaded assembly: {0}\n", aue.Assembly.Location));
@@ -1064,16 +1080,13 @@ namespace Mono.Debugging.Soft
 			case EventType.TypeLoad: {
 				var t = ((TypeLoadEvent)e).Type;
 				
-				string typeName = t.FullName;
-				
-				Console.WriteLine (typeName);
-
-				if (types.ContainsKey (typeName)) {
-					if (typeName != "System.Exception" && typeName != "<Module>")
-						LoggingService.LogError ("Type '" + typeName + "' loaded more than once", null);
-				} else {
-					ResolveBreakpoints (t);
-				}
+//				string typeName = t.FullName;
+//
+//                if (types.ContainsKey(typeName)) {
+//                    if (typeName != "System.Exception")
+//                        LoggingService.LogError("Type '" + typeName + "' loaded more than once", null);
+//                }
+				ResolveBreakpoints (t);
 				break;
 			}
 			case EventType.ThreadStart: {
@@ -1333,28 +1346,30 @@ namespace Mono.Debugging.Soft
 			
 			var resolved = new List<BreakInfo> ();
 			
-			foreach (string s in type_to_source [t]) {
-				foreach (var bi in pending_bes.Where (b => b.BreakEvent is Breakpoint)) {
-					var bp = (Breakpoint) bi.BreakEvent;
-					if (PathComparer.Compare (PathToFileName (bp.FileName), s) == 0) {
-						bool inisideLoadedRange;
-						Location l = GetLocFromType (t, s, bp.Line, out inisideLoadedRange);
-						if (l != null) {
-							OnDebuggerOutput (false, string.Format ("Resolved pending breakpoint at '{0}:{1}' to {2} [0x{3:x5}].\n",
-							                                        s, l.LineNumber, l.Method.FullName, l.ILOffset));
-							ResolvePendingBreakpoint (bi, l);
-							resolved.Add (bi);
-						} else {
-							if (inisideLoadedRange) {
-								bi.SetStatus (BreakEventStatus.Invalid, null);
+			if (type_to_source.ContainsKey (t)) {
+				foreach (string s in type_to_source [t]) {
+					foreach (var bi in pending_bes.Where (b => b.BreakEvent is Breakpoint)) {
+						var bp = (Breakpoint) bi.BreakEvent;
+						if (PathComparer.Compare (PathToFileName (bp.FileName), s) == 0) {
+							bool inisideLoadedRange;
+							Location l = GetLocFromType (t, s, bp.Line, out inisideLoadedRange);
+							if (l != null) {
+								OnDebuggerOutput (false, string.Format ("Resolved pending breakpoint at '{0}:{1}' to {2} [0x{3:x5}].\n",
+								                                        s, l.LineNumber, l.Method.FullName, l.ILOffset));
+								ResolvePendingBreakpoint (bi, l);
+								resolved.Add (bi);
+							} else {
+								if (inisideLoadedRange) {
+									bi.SetStatus (BreakEventStatus.Invalid, null);
+								}
 							}
 						}
 					}
+					
+					foreach (var be in resolved)
+						pending_bes.Remove (be);
+					resolved.Clear ();
 				}
-				
-				foreach (var be in resolved)
-					pending_bes.Remove (be);
-				resolved.Clear ();
 			}
 			
 			//handle pending catchpoints

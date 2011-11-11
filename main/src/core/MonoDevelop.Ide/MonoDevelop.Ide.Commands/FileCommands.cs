@@ -152,6 +152,17 @@ namespace MonoDevelop.Ide.Commands
 	{
 		protected override void Run ()
 		{
+			if (IdeApp.Workbench.Documents.Any (doc => doc.IsDirty)) {
+				DirtyFilesDialog dlg = new DirtyFilesDialog ();
+				dlg.Modal = true;
+				if (MessageService.ShowCustomDialog (dlg, IdeApp.Workbench.RootWindow) != (int)Gtk.ResponseType.Ok)
+					return;
+			}
+			
+			foreach (Document doc in IdeApp.Workbench.Documents) {
+				doc.IsDirty = false;
+			}
+			
 			IdeApp.Workbench.CloseAllDocuments (false);
 		}
 

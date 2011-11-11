@@ -189,6 +189,9 @@ namespace MonoDevelop.VersionControl
 					// All files, clear the cached version info for each file, if exists
 					foreach (FileUpdateEventInfo uinfo in dir) {
 						FilePath path = uinfo.FilePath.ParentDirectory;
+						if (path.IsNullOrEmpty)
+							continue;
+							
 						DirData dd;
 						if (filePaths.TryGetValue (path.CanonicalPath, out dd) && dd.FileData != null) {
 							dd.FileData.Remove (uinfo.FilePath.CanonicalPath);

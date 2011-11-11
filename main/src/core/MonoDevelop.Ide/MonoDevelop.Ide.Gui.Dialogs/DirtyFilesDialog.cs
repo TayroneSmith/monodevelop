@@ -80,8 +80,9 @@ namespace MonoDevelop.Ide.Gui.Dialogs
 			sc.BorderWidth = 6;
 			this.VBox.PackStart (sc, true, true, 6);
 			
-			btnSaveAndQuit = new Button (GettextCatalog.GetString ("_Save and Quit"));
+			btnSaveAndQuit = new Button (GettextCatalog.GetString ("_Save and Close"));
 			btnQuit = new Button (Gtk.Stock.Quit);
+			btnQuit.Label = GettextCatalog.GetString ("_Close");
 			btnCancel = new Button (Gtk.Stock.Cancel);
 
 			btnSaveAndQuit.Clicked += SaveAndQuit;

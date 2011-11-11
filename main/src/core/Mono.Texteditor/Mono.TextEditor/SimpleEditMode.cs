@@ -393,7 +393,7 @@ namespace Mono.TextEditor
 			int keyCode = GetKeyCode (key, modifier);
 			if (keyBindings.ContainsKey (keyCode)) {
 				RunAction (keyBindings [keyCode]);
-			} else if (unicodeKey != 0 && modifier == Gdk.ModifierType.None) {
+			} else if (unicodeKey != 0 && (modifier == Gdk.ModifierType.None || modifier == Gdk.ModifierType.ShiftMask)) {
 				InsertCharacter (unicodeKey);
 			}
 		}

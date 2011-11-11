@@ -483,7 +483,7 @@ namespace Mono.TextEditor
 					if (startLine != oldStartLine && endLine != oldEndLine) {
 						from = System.Math.Min (startLine, oldStartLine);
 						to   = System.Math.Max (endLine, oldEndLine);
-					} else if (startLine != oldStartLine) {
+					} else if (startLine != oldStartLine) {
 						from = startLine;
 						to   = oldStartLine;
 					} else if (endLine != oldEndLine) {
@@ -943,7 +943,7 @@ namespace Mono.TextEditor
 			if (lastTime != e.Time) {// filter double clicks
 				if (e.Type == EventType.TwoButtonPress) {
 				    lastTime = e.Time;
-				} else {
+				} else {
 					lastTime = 0;
 				}
 				mouseButtonPressed = e.Button;
@@ -1283,27 +1283,41 @@ namespace Mono.TextEditor
 			if (isDisposed || p.Line < 0 || p.Line > Document.LineCount)
 				return;
 			SetAdjustments (this.Allocation);
-			//			Adjustment adj;
-			//adj.Upper
+
 			if (this.textEditorData.VAdjustment.Upper < Allocation.Height) {
 				this.textEditorData.VAdjustment.Value = 0;
 				return;
 			}
 			
-			//	int yMargin = 1 * this.LineHeight;
 			double caretPosition = LineToY (p.Line);
+			double textWidth = Allocation.Width - textViewMargin.XOffset;
 			this.textEditorData.VAdjustment.Value = caretPosition - this.textEditorData.VAdjustment.PageSize / 2;
-			
-			if (this.textEditorData.HAdjustment.Upper < Allocation.Width)  {
+
+			// Cases: 
+			//  * entire margin fits on screen
+			//  * caret is in leftmost screenful of margin
+			//  * caret is already onscreen
+			//  * caret is offscreen right
+			//  * caret is offscreen left
+			if (this.textEditorData.HAdjustment.Upper < textWidth )  {
+				// Entire margin fits on screen
 				this.textEditorData.HAdjustment.Value = 0;
 			} else {
 				double caretX = ColumnToX (Document.GetLine (p.Line), p.Column);
-				double textWith = Allocation.Width - textViewMargin.XOffset;
-				if (this.textEditorData.HAdjustment.Value > caretX) {
-					this.textEditorData.HAdjustment.Value = caretX;
-				} else if (this.textEditorData.HAdjustment.Value + textWith < caretX + TextViewMargin.CharWidth) {
-					double adjustment = System.Math.Max (0, caretX - textWith + TextViewMargin.CharWidth);
-					this.textEditorData.HAdjustment.Value = adjustment;
+				double halfTextWidth = textWidth / 2;
+
+				if (caretX < textWidth) {
+					// Caret is in leftmost screenful of margin
+					textEditorData.HAdjustment.Value = 0;
+				} else if (caretX <= textEditorData.HAdjustment.Value) {
+					// Caret is offscreen left
+					textEditorData.HAdjustment.Value = System.Math.Min (caretX, textEditorData.HAdjustment.Upper) - halfTextWidth;
+				} else if (caretX + TextViewMargin.CharWidth >= textEditorData.HAdjustment.Value + textWidth) {
+					// Caret is offscreen right
+					textEditorData.HAdjustment.Value = System.Math.Min (caretX + halfTextWidth, textEditorData.HAdjustment.Upper - halfTextWidth);
+				} else {
+					// Caret is already onscreen
+					// Do nothing
 				}
 			}
 		}
@@ -1380,6 +1394,7 @@ namespace Mono.TextEditor
 				this.GdkWindow.MoveResize (allocation);
 			SetAdjustments (Allocation);
 			QueueDraw ();
+			CenterToCaret();
 		}
 		
 		protected override bool OnScrollEvent (EventScroll evnt)

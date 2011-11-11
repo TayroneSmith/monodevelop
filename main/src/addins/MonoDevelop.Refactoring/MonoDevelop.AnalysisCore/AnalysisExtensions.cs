@@ -111,8 +111,10 @@ namespace MonoDevelop.AnalysisCore
 				return;
 			}
 			
-			var node = (AnalysisRuleAddinNode)extNode;
-			rulesByInput.Add (node.Input, node);
+			if (extNode is AnalysisRuleAddinNode) {
+				var node = (AnalysisRuleAddinNode)extNode;
+				rulesByInput.Add (node.Input, node);
+			}
 		}
 		
 		static void RemoveRule (ExtensionNode extNode)

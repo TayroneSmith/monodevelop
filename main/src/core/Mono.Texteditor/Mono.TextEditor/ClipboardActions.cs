@@ -28,6 +28,7 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -52,13 +53,15 @@ namespace Mono.TextEditor
 		
 		public static void Copy (TextEditorData data)
 		{
-			CopyOperation operation = new CopyOperation ();
+			if (data.IsSomethingSelected || Path.DirectorySeparatorChar == '\\') { // Case 407636
+				CopyOperation operation = new CopyOperation ();
 			
-			Clipboard clipboard = Clipboard.Get (CopyOperation.CLIPBOARD_ATOM);
-			operation.CopyData (data);
+				Clipboard clipboard = Clipboard.Get (CopyOperation.CLIPBOARD_ATOM);
+				operation.CopyData (data);
 			
-			clipboard.SetWithData ((Gtk.TargetEntry[])CopyOperation.targetList, operation.ClipboardGetFunc,
+				clipboard.SetWithData ((Gtk.TargetEntry[])CopyOperation.targetList, operation.ClipboardGetFunc,
 			                       operation.ClipboardClearFunc);
+			}
 		}
 	
 		public class CopyOperation

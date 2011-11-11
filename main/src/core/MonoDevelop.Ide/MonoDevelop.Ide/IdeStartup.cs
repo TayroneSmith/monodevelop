@@ -31,6 +31,7 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Net;
@@ -59,7 +60,7 @@ namespace MonoDevelop.Ide
 		ArrayList errorsList = new ArrayList ();
 		bool initialized;
 		internal static string DefaultTheme;
-		static readonly int ipcBasePort = 40000;
+		static readonly int ipcBasePort = 41000;
 		
 		public int Run (string[] args)
 		{
@@ -126,12 +127,12 @@ namespace MonoDevelop.Ide
 			if(!options.NewWindow && startupInfo.HasFiles) {
 				Counters.Initialization.Trace ("Pre-Initializing Runtime to load files in existing window");
 				Runtime.Initialize (true);
-				foreach (var file in startupInfo.RequestedFileList) {
-					if (MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (file.FileName)) {
-						options.NewWindow = true;
-						break;
-					}
-				}
+//				foreach (var file in startupInfo.RequestedFileList) {
+//					if (MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (file.FileName)) {
+//						options.NewWindow = true;
+//						break;
+//					}
+//				}
 			}
 			
 			DefaultTheme = Gtk.Settings.Default.ThemeName;
@@ -167,7 +168,7 @@ namespace MonoDevelop.Ide
 				listen_socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
 				ep = new IPEndPoint (IPAddress.Loopback, ipcBasePort + HashSdbmBounded (Environment.UserName));
 			} else {
-				socket_filename = "/tmp/md-" + Environment.GetEnvironmentVariable ("USER") + "-socket";
+				socket_filename = "/tmp/md-unity-" + Environment.GetEnvironmentVariable ("USER") + "-socket";
 				listen_socket = new Socket (AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
 				ep = new UnixEndPoint (socket_filename);
 			}
@@ -181,11 +182,20 @@ namespace MonoDevelop.Ide
 					}
 					listen_socket.Connect (ep);
 					listen_socket.Send (Encoding.UTF8.GetBytes (builder.ToString ()));
+					listen_socket.Close();
 					return 0;
 				} catch {
 					// Reset the socket
 					if (null != socket_filename && File.Exists (socket_filename))
 						File.Delete (socket_filename);
+					if (options.IpcTcp) {
+						try {
+							listen_socket.Close();
+							listen_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+						} catch (Exception exc) {
+							LoggingService.LogError("Error resetting TCP socket", exc);
+						}
+					}
 				}
 			}
 			
@@ -358,6 +368,7 @@ namespace MonoDevelop.Ide
 		void ListenCallback (IAsyncResult state)
 		{
 			Socket sock = (Socket)state.AsyncState;
+            List<FileOpenInformation> files = new List<FileOpenInformation> ();
 
 			Socket client = sock.EndAccept (state);
 			((Socket)state.AsyncState).BeginAccept (new AsyncCallback (ListenCallback), sock);
@@ -366,44 +377,39 @@ namespace MonoDevelop.Ide
 			foreach (string filename in Encoding.UTF8.GetString (buf).Split ('\n')) {
 				string trimmed = filename.Trim ();
 				string file = "";
+				FileOpenInformation info;
+				
 				foreach (char c in trimmed) {
 					if (c == 0x0000)
 						continue;
 					file += c;
 				}
-				GLib.Idle.Add (delegate(){ return openFile (file); });
-			}
-		}
-
-		bool openFile (string file) 
-		{
-			if (string.IsNullOrEmpty (file))
-				return false;
-			
-			Match fileMatch = StartupInfo.FileExpression.Match (file);
-			if (null == fileMatch || !fileMatch.Success)
-				return false;
 				
+				info = ParseFile (file);
+				if (info != null) files.Add (info);
+			}
+			GLib.Idle.Add(delegate { IdeApp.OpenFiles(files); return false; });
+		}
+		
+		FileOpenInformation ParseFile(string file)
+		{
+			if (string.IsNullOrEmpty(file))
+			return null;
+			
+			Match fileMatch = StartupInfo.FileExpression.Match(file);
+			if (null == fileMatch || !fileMatch.Success)
+				return null;
+			
 			int line = 1,
-			    column = 1;
+			column = 1;
 			
 			file = fileMatch.Groups["filename"].Value;
 			if (fileMatch.Groups["line"].Success)
-				int.TryParse (fileMatch.Groups["line"].Value, out line);
+				int.TryParse(fileMatch.Groups["line"].Value, out line);
 			if (fileMatch.Groups["column"].Success)
-				int.TryParse (fileMatch.Groups["column"].Value, out column);
-				
-			try {
-				if (MonoDevelop.Projects.Services.ProjectService.IsWorkspaceItemFile (file) || 
-					MonoDevelop.Projects.Services.ProjectService.IsSolutionItemFile (file)) {
-						IdeApp.Workspace.OpenWorkspaceItem (file);
-				} else {
-						IdeApp.Workbench.OpenDocument (file, line, column);
-				}
-			} catch {
-			}
-			IdeApp.Workbench.Present ();
-			return false;
+				int.TryParse(fileMatch.Groups["column"].Value, out column);
+			
+			return new FileOpenInformation (file, line, column, OpenDocumentOptions.Default | OpenDocumentOptions.BringToFront);
 		}
 		
 		bool CheckQtCurve ()

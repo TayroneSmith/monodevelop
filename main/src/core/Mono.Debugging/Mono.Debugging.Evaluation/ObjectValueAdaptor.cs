@@ -357,6 +357,12 @@ namespace Mono.Debugging.Evaluation
 			BindingFlags nonNonPublicFlag = groupPrivateMembers || showRawView ? (BindingFlags)0 : BindingFlags.NonPublic;
 			BindingFlags staticFlag = ctx.Options.GroupStaticMembers ? (BindingFlags)0 : BindingFlags.Static;
 			BindingFlags access = BindingFlags.Public | BindingFlags.Instance | flattenFlag | nonNonPublicFlag | staticFlag;
+
+			// Don't bother populating list for null parents
+			if (obj == null || IsNull(ctx, obj))
+			{
+			    return values.ToArray();
+			}
 			
 			// Load all members to a list before creating the object values,
 			// to avoid problems with objects being invalidated due to evaluations in the target,

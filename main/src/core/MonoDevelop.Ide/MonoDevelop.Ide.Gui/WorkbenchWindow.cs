@@ -126,5 +126,27 @@ namespace MonoDevelop.Ide.Gui
 			foreach (TopLevelChild child in topLevels)
 				callback (child.Child);
 		}
+
+		bool wasRestoredToMaximized = false;
+		bool wasMinimizedFromMaximized = false;
+		protected override bool OnWindowStateEvent(Gdk.EventWindowState evnt)
+		{
+			// HACK around Gtk window restore brokenness on win7:
+			// When restoring a maximized window, it gets restored to the nonmaximized state
+			if (MonoDevelop.Core.Platform.IsWindows)
+			{
+				if (wasRestoredToMaximized && evnt.NewWindowState == 0)
+				{
+					wasRestoredToMaximized = wasMinimizedFromMaximized = false;
+					Maximize();
+					return true;
+				}
+
+				wasRestoredToMaximized = (wasMinimizedFromMaximized && evnt.NewWindowState == Gdk.WindowState.Maximized);
+				wasMinimizedFromMaximized = (evnt.NewWindowState == (Gdk.WindowState.Iconified | Gdk.WindowState.Maximized));
+			}
+
+			return base.OnWindowStateEvent(evnt);
+		}
 	}
 }

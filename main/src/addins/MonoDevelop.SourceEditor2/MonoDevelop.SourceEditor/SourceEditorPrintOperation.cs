@@ -104,7 +104,7 @@ namespace MonoDevelop.SourceEditor
 			PrintHeader (cr, context, pageNr, ref xPos, ref yPos);
 			
 			int startLine = pageNr * linesPerPage;
-			int endLine = Math.Min (startLine + linesPerPage - 1, doc.LineCount);
+			int endLine = Math.Min (startLine + linesPerPage, doc.LineCount);
 			
 			//FIXME: use proper 1-layout-per-line
 			for (int i = startLine; i < endLine; i++) {

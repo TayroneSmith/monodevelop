@@ -90,6 +90,8 @@ namespace Mono.TextEditor.Theatrics
 
 		public virtual void Popup ()
 		{
+			if (editor == null || editor.GdkWindow == null)
+				return;
 			editor.GdkWindow.GetOrigin (out x, out y);
 			bounds = CalculateInitialBounds ();
 			x = x + bounds.X - (int)(ExpandWidth / 2);

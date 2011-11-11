@@ -69,8 +69,9 @@ namespace MonoDevelop.Debugger
 	{
 		protected override void Run ()
 		{
-			if (DebuggingService.IsPaused) {
-				DebuggingService.Resume ();
+			if (DebuggingService.IsDebugging) {
+				if (DebuggingService.IsPaused)
+					DebuggingService.Resume ();
 				return;
 			}
 		
@@ -138,7 +139,7 @@ namespace MonoDevelop.Debugger
 		
 		protected override void Update (CommandInfo info)
 		{
-			if (DebuggingService.IsPaused || DebuggingService.IsDebugging) {
+			if (DebuggingService.IsDebugging) {
 				info.Enabled = true;
 				info.Text = GettextCatalog.GetString ("_Continue");
 				info.Description = GettextCatalog.GetString ("Continue the execution of the application");
@@ -287,12 +288,13 @@ namespace MonoDevelop.Debugger
 	{
 		protected override void Run ()
 		{
-			DebuggingService.StepOver();
+			if (!DebuggingService.IsRunning)
+				DebuggingService.StepOver();
 		}
 		
 		protected override void Update (CommandInfo info)
 		{
-			info.Enabled = DebuggingService.IsPaused;
+			info.Enabled = DebuggingService.IsDebugging;
 			info.Visible = DebuggingService.IsFeatureSupported (DebuggerFeatures.Stepping);
 		}
 	}
@@ -301,12 +303,13 @@ namespace MonoDevelop.Debugger
 	{
 		protected override void Run ()
 		{
-			DebuggingService.StepInto();
+			if (!DebuggingService.IsRunning)
+				DebuggingService.StepInto();
 		}
 		
 		protected override void Update (CommandInfo info)
 		{
-			info.Enabled = DebuggingService.IsPaused;
+			info.Enabled = DebuggingService.IsDebugging;
 			info.Visible = DebuggingService.IsFeatureSupported (DebuggerFeatures.Stepping);
 		}
 	}
@@ -315,12 +318,13 @@ namespace MonoDevelop.Debugger
 	{
 		protected override void Run ()
 		{
-			DebuggingService.StepOut ();
+			if (!DebuggingService.IsRunning)
+				DebuggingService.StepOut ();
 		}
 		
 		protected override void Update (CommandInfo info)
 		{
-			info.Enabled = DebuggingService.IsPaused;
+			info.Enabled = DebuggingService.IsDebugging;
 			info.Visible = DebuggingService.IsFeatureSupported (DebuggerFeatures.Stepping);
 		}
 	}

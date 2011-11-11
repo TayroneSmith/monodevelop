@@ -350,7 +350,8 @@ namespace MonoDevelop.SourceEditor
 		
 		public void Dispose ()
 		{
-			// nothing
+			if (null != parseInformationUpdaterWorkerThread)
+				parseInformationUpdaterWorkerThread.Dispose ();
 		}
 		
 		FoldSegment AddMarker (List<FoldSegment> foldSegments, string text, DomRegion region, FoldingType type)

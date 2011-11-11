@@ -1872,8 +1872,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				return new CSharpInvocationResolveResult(
 					null, lifted.nonLiftedOperator, lifted.ReturnType.Resolve(context),
 					r.GetArgumentsWithConversions(), r.BestCandidateErrors,
-					isLiftedOperatorInvocation: true,
-					argumentToParameterMap: r.GetArgumentToParameterMap()
+					false, false, true, false, r.GetArgumentToParameterMap()
 				);
 			} else {
 				return r.CreateResolveResult(null);

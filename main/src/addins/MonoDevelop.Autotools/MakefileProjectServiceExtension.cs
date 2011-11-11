@@ -160,21 +160,24 @@ namespace MonoDevelop.Autotools
 			string output = String.Empty;
 			int exitCode = 0;
 			monitor.BeginTask (GettextCatalog.GetString ("Building {0}", project.Name), 1);
-			try
-			{
+			try {
 				string baseDir = project.BaseDirectory;
-				string args = string.Format ("-j {0} {1}", data.ParallelProcesses, data.BuildTargetName);
+				StringBuilder args = new StringBuilder ();
+				
+				if (data.RelativeMakeCommand.EndsWith ("make", StringComparison.OrdinalIgnoreCase))
+					args.AppendFormat (" -j {0}", data.ParallelProcesses, data.BuildTargetName);
+				args.AppendFormat (" {0}", data.BuildTargetName);
 	
 				StringWriter swOutput = new StringWriter ();
 				LogTextWriter chainedOutput = new LogTextWriter ();
 				chainedOutput.ChainWriter (monitor.Log);
 				chainedOutput.ChainWriter (swOutput);
-
-				ProcessWrapper process = Runtime.ProcessService.StartProcess ("make",
-						args,
+				
+				ProcessWrapper process = Runtime.ProcessService.StartProcess (data.AbsoluteMakeCommand, 
+						args.ToString (), 
 						baseDir, 
 						chainedOutput, 
-						chainedOutput,
+						chainedOutput, 
 						null);
 				process.WaitForOutput ();
 
@@ -182,15 +185,11 @@ namespace MonoDevelop.Autotools
 				output = swOutput.ToString ();
 				chainedOutput.Close ();
 				swOutput.Close ();
-				monitor.Step ( 1 );
-			}
-			catch ( Exception e )
-			{
-				monitor.ReportError ( GettextCatalog.GetString ("Project could not be built: "), e );
+				monitor.Step (1);
+			} catch (Exception e) {
+				monitor.ReportError (GettextCatalog.GetString ("Project could not be built: "), e);
 				return null;
-			}
-			finally 
-			{
+			} finally {
 				monitor.EndTask ();
 			}
 
@@ -274,8 +273,8 @@ namespace MonoDevelop.Autotools
 
 			Match match = regexEnterDir.Match (error_string);
 			if (match.Success) {
-				//FIXME: Not always available, make -w is required or how?
-				//what to use then?
+			//FIXME: Not always available, make -w is required or how?
+			//what to use then?
 				if (match.Groups [1].Value == "Entering")
 					dirs.Push (match.Groups [2].Value);
 				else if (match.Groups [1].Value == "Leaving")
@@ -321,7 +320,8 @@ namespace MonoDevelop.Autotools
 			return error;
 		}
 
-		static string GetValue (Match match, string var)
+		static
+			string GetValue (Match match, string var)
 		{
 			string str = match.Result (var);
 			if (str != var && !String.IsNullOrEmpty (str))
@@ -344,34 +344,29 @@ namespace MonoDevelop.Autotools
 				return;
 			}
 
-			monitor.BeginTask ( GettextCatalog.GetString( "Cleaning project"), 1);
-			try
-			{
+			monitor.BeginTask (GettextCatalog.GetString ("Cleaning project"), 1);
+			try {
 				string baseDir = proj.BaseDirectory;
 	
-				ProcessWrapper process = Runtime.ProcessService.StartProcess ( "make", 
-						data.CleanTargetName,
+				ProcessWrapper process = Runtime.ProcessService.StartProcess (data.AbsoluteMakeCommand, 
+						data.CleanTargetName, 
 						baseDir, 
 						monitor.Log, 
 						monitor.Log, 
-						null );
+						null);
 				process.WaitForOutput ();
 
-				if ( process.ExitCode > 0 )
-					throw new Exception ( GettextCatalog.GetString ("An unspecified error occurred while running '{0}'", "make " + data.CleanTargetName) );
+				if (process.ExitCode > 0)
+					throw new Exception ( GettextCatalog.GetString ("An unspecified error occurred while running '{0} {1}'", data.AbsoluteMakeCommand, data.CleanTargetName) );
 
-				monitor.Step ( 1 );
-			}
-			catch ( Exception e )
-			{
-				monitor.ReportError ( GettextCatalog.GetString ("Project could not be cleaned: "), e );
+				monitor.Step (1);
+			} catch (Exception e) {
+				monitor.ReportError (GettextCatalog.GetString ("Project could not be cleaned: "), e);
 				return;
-			}
-			finally 
-			{
+			} finally {
 				monitor.EndTask ();
 			}
-			monitor.ReportSuccess ( GettextCatalog.GetString ( "Project successfully cleaned"));
+			monitor.ReportSuccess (GettextCatalog.GetString ("Project successfully cleaned"));
 		}
 
 		protected override bool CanExecute (SolutionEntityItem item, ExecutionContext context, ConfigurationSelector configuration)
@@ -404,7 +399,7 @@ namespace MonoDevelop.Autotools
 			monitor.BeginTask (GettextCatalog.GetString ("Executing {0}", project.Name), 1);
 			try
 			{
-				ProcessWrapper process = Runtime.ProcessService.StartProcess ("make",
+				ProcessWrapper process = Runtime.ProcessService.StartProcess (data.AbsoluteMakeCommand,
 						data.ExecuteTargetName,
 						project.BaseDirectory,
 						console.Out,
