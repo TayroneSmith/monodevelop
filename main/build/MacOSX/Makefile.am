@@ -166,6 +166,14 @@ mono-bundle: MonoDevelop.app
 	ln -s Libraries/libmono.dylib $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Mono
 	ln -s Versions/Current/Resources $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Resources
 	ln -s $(CURRENT) $(MAC_APP_DIR)/Contents/Frameworks/Mono.framework/Versions/Current
+# Nuke conflicting library versions
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libpng*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libjpeg*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libtiff*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libgif*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libxml*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libsqlite*
+	rm -f $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/lib/libiconv.2.dylib
 	./transplant_gtk.sh $(MODERN_GTK_DIR) $(BUNDLED_FRAMEWORK_DIR)/Versions/Current
 	mkdir -p $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango
 	cp pangorc $(BUNDLED_FRAMEWORK_DIR)/Versions/Current/etc/pango
