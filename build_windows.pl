@@ -64,6 +64,8 @@ die ("Must grab Boo extensions implementation") if !-d "$root/boo-extensions";
 die ("Must grab Unityscript implementation") if !-d "$root/unityscript";
 die ("Must grab Boo MD Addins implementation") if !-d "$root/boo-md-addins";
 
+system("git submodule update --init --recursive") && die("Failed to sync submodules");
+
 system("\"$ENV{VS100COMNTOOLS}/vsvars32.bat\" && msbuild $root\\monodevelop\\main\\Main.sln /p:Configuration=DebugWin32 /p:Platform=x86 $incremental") && die ("Failed to compile MonoDevelop");
 
 system("\"$ENV{VS100COMNTOOLS}/vsvars32.bat\" && msbuild $root\\MonoDevelop.Debugger.Soft.Unity\\MonoDevelop.Debugger.Soft.Unity.sln /p:Configuration=Release $incremental") && die ("Failed to compile MonoDevelop");
